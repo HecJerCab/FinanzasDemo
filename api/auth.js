@@ -35,8 +35,8 @@ module.exports = async function handler(req, res) {
     if (action === "login") {
       // Usuario demo hardcodeado
       const DEMO_USERS = [
-        { username: "demo", password: "demo123" },
-        { username: "demo2", password: "demo123" },
+        { username: "demo", password: "finanzas6891" },
+        { username: "demo2", password: "finanzas6891" },
       ];
       const user = DEMO_USERS.find(u => u.username === username);
       if (!user) return res.status(401).json({ error: "Usuario incorrecto" });
