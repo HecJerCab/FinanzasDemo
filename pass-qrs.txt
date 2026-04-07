@@ -1,0 +1,11 @@
+✓ Usuario: Jere-1
+  Secret TOTP: YMK6PRDVNDI6IDZI3EI4
+  QR para escanear:
+  https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=otpauth%3A%2F%2Ftotp%2FFinanzasApp%3AJere-1%3Fsecret%3DYMK6PRDVNDI6IDZI3EI4%26issuer%3DFinanzasApp
+
+✓ Usuario: Lulu-1
+  Secret TOTP: 5DHJURR4HCDHUVOU4EJA
+  QR para escanear:
+  https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=otpauth%3A%2F%2Ftotp%2FFinanzasApp%3ALulu-1%3Fsecret%3D5DHJURR4HCDHUVOU4EJA%26issuer%3DFinanzasApp
+
+✅ Usuarios guardados en Redis correctamente.
