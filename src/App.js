@@ -433,9 +433,7 @@ function LoginScreen({onLogin}){
         <p style={{fontSize:36,marginBottom:8}}>💸</p>
         <h2 style={{fontSize:22,fontWeight:700,marginBottom:6}}>FinanzasApp</h2>
         <p style={{color:D.textMuted,fontSize:14,marginBottom:4}}>Demo — probá todas las funciones</p>
-        <div style={{background:D.surface,borderRadius:10,padding:"10px 16px",border:`1px solid ${D.border}`,display:"inline-block",marginTop:8}}>
-          <p style={{fontSize:12,color:D.textMuted,margin:0}}>Usuario: <span style={{color:D.accent,fontWeight:600}}>demo</span> · Contraseña: <span style={{color:D.accent,fontWeight:600}}>demo123</span></p>
-        </div>
+        
       </div>
       <div style={{background:D.surface,borderRadius:16,padding:"20px",border:`1px solid ${D.border}`}}>
         <label style={{display:"block",fontSize:11,color:D.textMuted,marginBottom:4,fontWeight:500,textTransform:"uppercase",letterSpacing:.3}}>Usuario</label>
@@ -823,3 +821,4 @@ export default function App(){
     </div>
   );
 }
+
