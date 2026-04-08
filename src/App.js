@@ -453,6 +453,7 @@ function FraseCarrusel(){
   },[]);
   return(<p style={{color:"#7878a0",fontSize:13,fontStyle:"italic",marginTop:8,minHeight:20,transition:"opacity .6s ease",opacity:visible?1:0,textAlign:"center"}}>"{FRASES[idx]}"</p>);
 }
+function FraseCarrusel(){var f=["Controlar tu dinero es controlar tu futuro.","El presupuesto es la brujula de tus finanzas.","Pequenos ahorros, grandes resultados.","Tu futuro financiero empieza hoy."];var r=React.useState(0);var idx=r[0];var setIdx=r[1];var v=React.useState(true);var vis=v[0];var setVis=v[1];React.useEffect(function(){var t=setInterval(function(){setVis(false);setTimeout(function(){setIdx(function(i){return(i+1)%f.length;});setVis(true);},600);},3500);return function(){clearInterval(t);};},[]); return React.createElement("p",{style:{color:"#7878a0",fontSize:13,fontStyle:"italic",marginTop:8,minHeight:20,transition:"opacity .6s ease",opacity:vis?1:0,textAlign:"center"}},'"'+f[idx]+'"');}
 function LoginScreen({onLogin}){
   const [username,setUsername]=useState("");
   const [password,setPassword]=useState("");
@@ -473,6 +474,7 @@ function LoginScreen({onLogin}){
         <p style={{fontSize:36,marginBottom:8}}>💸</p>
         <h2 style={{fontSize:22,fontWeight:700,marginBottom:6}}>FinanzasApp</h2>
         <p style={{color:D.textMuted,fontSize:14,marginBottom:4}}>Demo — probá todas las funciones</p>
+<FraseCarrusel/>
         <div style={{background:D.surface,borderRadius:10,padding:"10px 16px",border:`1px solid ${D.border}`,display:"inline-block",marginTop:8}}>
         </div>
       </div>
