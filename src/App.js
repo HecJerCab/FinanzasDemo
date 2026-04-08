@@ -434,7 +434,7 @@ function LoginScreen({onLogin}){
         <h2 style={{fontSize:22,fontWeight:700,marginBottom:6}}>FinanzasApp</h2>
         <p style={{color:D.textMuted,fontSize:14,marginBottom:4}}>Demo — probá todas las funciones</p>
         <div style={{background:D.surface,borderRadius:10,padding:"10px 16px",border:`1px solid ${D.border}`,display:"inline-block",marginTop:8}}>
-          <p style={{fontSize:12,color:D.textMuted,margin:0}}>Ingresá con tus credenciales de acceso</p>
+          <p style={{fontSize:12,color:D.textMuted,margin:0}}>Usuario: <span style={{color:D.accent,fontWeight:600}}>demo</span> · Contraseña: <span style={{color:D.accent,fontWeight:600}}>demo123</span></p>
         </div>
       </div>
       <div style={{background:D.surface,borderRadius:16,padding:"20px",border:`1px solid ${D.border}`}}>
@@ -498,26 +498,24 @@ export default function App(){
     setLoading(true);
     const r=await apiData({action:"getAll"},t);
     if(r.success){
-      // Si no hay datos, precargar datos de ejemplo
-      const d=r.data;
-      const isEmpty=!d.ingresos?.length&&!d.gastos?.length;
-      if(isEmpty){
-        for(const type of Object.keys(DEMO_DATA)){
-          for(const record of DEMO_DATA[type]){
-            await apiData({action:"add",type,record},t);
-          }
-        }
-        const r2=await apiData({action:"getAll"},t);
-        if(r2.success) setRecords(r2.data);
-      } else {
-        setRecords(d);
-      }
-      if(d.categorias){
-        setCatGasto(d.categorias.gasto||DEFAULT_CAT_GASTO);
-        setCatIngreso(d.categorias.ingreso||DEFAULT_CAT_INGRESO);
+      setRecords(r.data);
+      if(r.data.categorias){
+        setCatGasto(r.data.categorias.gasto||DEFAULT_CAT_GASTO);
+        setCatIngreso(r.data.categorias.ingreso||DEFAULT_CAT_INGRESO);
       }
     }
     setLoading(false);
+  };
+
+  const cargarEjemplos=async()=>{
+    setLoading(true);
+    for(const type of Object.keys(DEMO_DATA)){
+      for(const record of DEMO_DATA[type]){
+        await apiData({action:"add",type,record},token);
+      }
+    }
+    showMsg("✓ Datos de ejemplo cargados");
+    loadAll();setLoading(false);
   };
 
   const saveCategorias=async(gasto,ingreso)=>{
@@ -795,7 +793,8 @@ export default function App(){
               <p style={{fontWeight:600,marginBottom:4}}>Sesión</p>
               <p style={{fontSize:13,color:D.textMuted,marginBottom:12}}>Usuario: <span style={{color:D.text,fontWeight:500}}>{userName}</span></p>
               <button onClick={()=>{localStorage.removeItem("nf_jwt");localStorage.removeItem("nf_user");setAuthState("login");}} style={{width:"100%",padding:"12px",borderRadius:10,border:`1px solid ${D.red}44`,background:D.red+"11",color:D.red,fontSize:14,fontWeight:500,marginBottom:8}}>Cerrar sesión</button>
-              <button onClick={resetDemo} disabled={loading} style={{width:"100%",padding:"12px",borderRadius:10,border:`1px solid ${D.yellow}44`,background:D.yellow+"11",color:D.yellow,fontSize:14,fontWeight:500}}>🔄 Resetear demo</button>
+              <button onClick={resetDemo} disabled={loading} style={{width:"100%",padding:"12px",borderRadius:10,border:`1px solid ${D.yellow}44`,background:D.yellow+"11",color:D.yellow,fontSize:14,fontWeight:500,marginBottom:8}}>🔄 Resetear demo</button>
+              <button onClick={cargarEjemplos} disabled={loading} style={{width:"100%",padding:"12px",borderRadius:10,border:`1px solid ${D.accent}44`,background:D.accent+"11",color:D.accent,fontSize:14,fontWeight:500}}>📊 Cargar datos de ejemplo</button>
             </div>
           </>}
 
