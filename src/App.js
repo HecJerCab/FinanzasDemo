@@ -1,8 +1,12 @@
-const DEFAULT_CAT_GASTO = ["Necesidades Basicas","Gastos Fijos","Gasto Hormiga","Gasto Extra","Limpieza","Cuidado Personal","Transporte"];
-const FRASES = ["Controlar tu dinero es controlar tu futuro.","El presupuesto es la brujula de tus finanzas.","Pequenos ahorros, grandes resultados.","Tu futuro financiero empieza hoy."];
 import { useState, useEffect, useRef } from "react";
 
-
+const FRASES = [
+  "Controlar tu dinero es controlar tu futuro.",
+  "El presupuesto es la brújula de tus finanzas.",
+  "Pequeños ahorros, grandes resultados.",
+  "Cada peso que registrás es un paso hacia tu meta.",
+  "Tu futuro financiero empieza hoy.",
+];
 const DEFAULT_CAT_INGRESO = ["Sueldo","Premio","Extra","Otro"];
 const CAT_INV = ["Plazo fijo","Acciones","Cripto","FCI","Dólares","Inmueble","Otro"];
 const CAT_AHORRO = ["Ahorro general","Fondo de emergencia","Vacaciones","Tecnología","Otro"];
@@ -435,6 +439,20 @@ function FraseCarrusel(){
   );
 }
 
+const FRASES = ["Controlar tu dinero es controlar tu futuro.","El presupuesto es la brujula de tus finanzas.","Pequenos ahorros, grandes resultados.","Tu futuro financiero empieza hoy."];
+
+function FraseCarrusel(){
+  const [idx,setIdx]=useState(0);
+  const [visible,setVisible]=useState(true);
+  useEffect(()=>{
+    const interval=setInterval(()=>{
+      setVisible(false);
+      setTimeout(()=>{ setIdx(i=>(i+1)%FRASES.length); setVisible(true); },600);
+    },3500);
+    return()=>clearInterval(interval);
+  },[]);
+  return(<p style={{color:"#7878a0",fontSize:13,fontStyle:"italic",marginTop:8,minHeight:20,transition:"opacity .6s ease",opacity:visible?1:0,textAlign:"center"}}>"{FRASES[idx]}"</p>);
+}
 function LoginScreen({onLogin}){
   const [username,setUsername]=useState("");
   const [password,setPassword]=useState("");
@@ -456,7 +474,6 @@ function LoginScreen({onLogin}){
         <h2 style={{fontSize:22,fontWeight:700,marginBottom:6}}>FinanzasApp</h2>
         <p style={{color:D.textMuted,fontSize:14,marginBottom:4}}>Demo — probá todas las funciones</p>
         <div style={{background:D.surface,borderRadius:10,padding:"10px 16px",border:`1px solid ${D.border}`,display:"inline-block",marginTop:8}}>
-          <p style={{fontSize:12,color:D.textMuted,margin:0}}>Usuario: <span style={{color:D.accent,fontWeight:600}}>demo</span> · Contraseña: <span style={{color:D.accent,fontWeight:600}}>demo123</span></p>
         </div>
       </div>
       <div style={{background:D.surface,borderRadius:16,padding:"20px",border:`1px solid ${D.border}`}}>
@@ -845,4 +862,3 @@ export default function App(){
     </div>
   );
 }
-
