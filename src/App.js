@@ -434,7 +434,7 @@ function LoginScreen({onLogin}){
         <h2 style={{fontSize:22,fontWeight:700,marginBottom:6}}>FinanzasApp</h2>
         <p style={{color:D.textMuted,fontSize:14,marginBottom:4}}>Demo — probá todas las funciones</p>
         <div style={{background:D.surface,borderRadius:10,padding:"10px 16px",border:`1px solid ${D.border}`,display:"inline-block",marginTop:8}}>
-          
+          <p style={{fontSize:12,color:D.textMuted,margin:0}}>Usuario: <span style={{color:D.accent,fontWeight:600}}>demo</span> · Contraseña: <span style={{color:D.accent,fontWeight:600}}>demo123</span></p>
         </div>
       </div>
       <div style={{background:D.surface,borderRadius:16,padding:"20px",border:`1px solid ${D.border}`}}>
@@ -784,7 +784,16 @@ export default function App(){
               <StatCard label="Ahorrado" value={(records.ahorros||[]).filter(r=>r.moneda===moneda).reduce((s,r)=>s+r.monto,0)} color={D.accent} moneda={moneda} sub="historial"/>
               <StatCard label="En proyectos" value={(records.proyectos||[]).filter(r=>r.moneda===moneda).reduce((s,r)=>s+(r.acumulado||0),0)} color={D.purple} moneda={moneda} sub="acumulado"/>
             </div>
-            {chartLoaded&&<><p style={{fontSize:12,fontWeight:600,color:D.textMuted,textTransform:"uppercase",letterSpacing:1,margin:"20px 0 10px"}}>Ingresos vs Gastos</p><div style={{background:D.surface,borderRadius:16,padding:"14px",border:`1px solid ${D.border}`,marginBottom:14}}><BarChartDoble ingresos={monthlyData(records.ingresos||[])} gastos={monthlyData(records.gastos||[])} moneda={moneda} presupuesto={records.presupuesto}/></div><p style={{fontSize:12,fontWeight:600,color:D.textMuted,textTransform:"uppercase",letterSpacing:1,margin:"16px 0 10px"}}>Distribución de gastos</p><div style={{background:D.surface,borderRadius:16,padding:"14px",border:`1px solid ${D.border}`,marginBottom:14}}><PieChart data={catGasto.map(c=>({label:c,value:(records.gastos||[]).filter(r=>r.categoria===c&&r.moneda===moneda).reduce((s,r)=>s+r.monto,0),color:catColors[c]})).filter(x=>x.value>0)}/></div></>}
+            {chartLoaded&&<>
+              <p style={{fontSize:12,fontWeight:600,color:D.textMuted,textTransform:"uppercase",letterSpacing:1,margin:"20px 0 10px"}}>Ingresos vs Gastos</p>
+              <div style={{background:D.surface,borderRadius:16,padding:"14px",border:`1px solid ${D.border}`,marginBottom:14}}>
+                <BarChartDoble ingresos={monthlyData(records.ingresos||[])} gastos={monthlyData(records.gastos||[])} moneda={moneda} presupuesto={records.presupuesto}/>
+              </div>
+              <p style={{fontSize:12,fontWeight:600,color:D.textMuted,textTransform:"uppercase",letterSpacing:1,margin:"16px 0 10px"}}>Distribución de gastos</p>
+              <div style={{background:D.surface,borderRadius:16,padding:"14px",border:`1px solid ${D.border}`,marginBottom:14}}>
+                <PieChart data={catGasto.map(c=>({label:c,value:(records.gastos||[]).filter(r=>r.categoria===c&&r.moneda===moneda).reduce((s,r)=>s+r.monto,0),color:catColors[c]})).filter(x=>x.value>0)}/>
+              </div>
+            </>}
           </>}
 
           {tab==="Config"&&<>
