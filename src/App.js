@@ -414,7 +414,7 @@ function Presupuesto({chartLoaded,token,catGasto}){
 
 // ── LOGIN ─────────────────────────────────────────────────────────────────────
 function LoginScreen({onLogin}){
-  const [username,setUsername]=useState("demo");
+  const [username,setUsername]=useState("");
   const [password,setPassword]=useState("");
   const [loading,setLoading]=useState(false);
   const [error,setError]=useState("");
@@ -442,7 +442,7 @@ function LoginScreen({onLogin}){
         <input style={{marginBottom:12}} value={username} onChange={e=>setUsername(e.target.value)}/>
         <label style={{display:"block",fontSize:11,color:D.textMuted,marginBottom:4,fontWeight:500,textTransform:"uppercase",letterSpacing:.3}}>Contraseña</label>
         <div style={{position:"relative",marginBottom:14}}>
-          <input type={showPass?"text":"password"} placeholder="demo123" value={password} onChange={e=>setPassword(e.target.value)} style={{paddingRight:44}}/>
+          <input type={showPass?"text":"password"} placeholder="Contraseña" value={password} onChange={e=>setPassword(e.target.value)} style={{paddingRight:44}}/>
           <button onClick={()=>setShowPass(p=>!p)} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:D.textMuted,fontSize:18,padding:0}}>{showPass?"🙈":"👁️"}</button>
         </div>
         {error&&<p style={{fontSize:12,color:D.red,marginBottom:10,fontWeight:500}}>{error}</p>}
