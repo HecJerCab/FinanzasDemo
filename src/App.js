@@ -617,6 +617,7 @@ export default function App(){
   }
 
   function CatEditor({cats,setCats,tipo}){
+    const [localNew,setLocalNew]=useState("");
     return(
       <div style={{marginBottom:16}}>
         <p style={{fontSize:13,fontWeight:600,marginBottom:10,color:D.text}}>Categorías de {tipo}</p>
@@ -633,8 +634,14 @@ export default function App(){
           </div>
         ))}
         <div style={{display:"flex",gap:8,marginTop:8}}>
-          <input placeholder="Nueva categoría..." value={editingCat===`new-${tipo}`?newCat:""} onFocus={()=>setEditingCat(`new-${tipo}`)} onChange={e=>setNewCat(e.target.value)} style={{flex:1,padding:"8px 12px",fontSize:13}}/>
-          <button onClick={()=>{if(!newCat.trim()) return;const n=[...cats,newCat.trim()];setCats(n);saveCategorias(tipo==="gastos"?n:catGasto,tipo==="ingresos"?n:catIngreso);setNewCat("");setEditingCat(null);}} style={{padding:"8px 14px",borderRadius:10,border:"none",background:D.accent,color:"#fff",fontSize:13,fontWeight:600}}>+ Agregar</button>
+          <input
+            placeholder="Nueva categoría..."
+            value={localNew}
+            onChange={e=>setLocalNew(e.target.value)}
+            onKeyDown={e=>{if(e.key==="Enter"&&localNew.trim()){const n=[...cats,localNew.trim()];setCats(n);saveCategorias(tipo==="gastos"?n:catGasto,tipo==="ingresos"?n:catIngreso);setLocalNew("");}}}
+            style={{flex:1,padding:"8px 12px",fontSize:13}}
+          />
+          <button onClick={()=>{if(!localNew.trim()) return;const n=[...cats,localNew.trim()];setCats(n);saveCategorias(tipo==="gastos"?n:catGasto,tipo==="ingresos"?n:catIngreso);setLocalNew("");}} style={{padding:"8px 14px",borderRadius:10,border:"none",background:D.accent,color:"#fff",fontSize:13,fontWeight:600}}>+ Agregar</button>
         </div>
       </div>
     );
