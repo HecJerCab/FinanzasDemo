@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
+const DEFAULT_CAT_GASTO = ["Necesidades Básicas","Gastos Fijos","Gasto Hormiga","Gasto Extra","Limpieza","Cuidado Personal","Transporte"];
 const DEFAULT_CAT_INGRESO = ["Sueldo","Premio","Extra","Otro"];
 const CAT_INV = ["Plazo fijo","Acciones","Cripto","FCI","Dólares","Inmueble","Otro"];
 const CAT_AHORRO = ["Ahorro general","Fondo de emergencia","Vacaciones","Tecnología","Otro"];
@@ -7,6 +8,13 @@ const MONEDAS = ["ARS","USD"];
 const TABS = ["Inicio","Ingresos","Gastos","Ahorro","Proyectos","Inversiones","Presupuesto","Reportes","Config"];
 const ICONS = {Inicio:"◉",Ingresos:"↑",Gastos:"↓",Ahorro:"♦",Proyectos:"★",Inversiones:"▲",Presupuesto:"⊞",Reportes:"≡",Config:"⚙"};
 const COLORS = ["#6c8ef7","#f7704f","#4fbe8a","#f7c44f","#a77cf7","#f74f9e","#4fd4f7","#50e3c2","#ff6b6b","#ee5a24","#a29bfe"];
+const FRASES = [
+  "Controlar tu dinero es controlar tu futuro.",
+  "El presupuesto es la brujula de tus finanzas.",
+  "Pequenos ahorros, grandes resultados.",
+  "Cada peso que registras es un paso hacia tu meta.",
+  "Tu futuro financiero empieza hoy.",
+];
 
 const fmtARS = n => new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0}).format(n||0);
 const fmtUSD = n => new Intl.NumberFormat("es-AR",{style:"currency",currency:"USD",maximumFractionDigits:2}).format(n||0);
@@ -51,7 +59,6 @@ async function apiData(body, token) {
   return r.json();
 }
 
-// Datos de ejemplo para precargar
 const DEMO_DATA = {
   ingresos: [
     {id:"i1",titulo:"Sueldo Abril",monto:500000,moneda:"ARS",categoria:"Sueldo",fecha:"2026-04-01",persona:"demo",nota:""},
@@ -62,7 +69,7 @@ const DEMO_DATA = {
     {id:"g2",titulo:"Alquiler",monto:120000,moneda:"ARS",categoria:"Gastos Fijos",fecha:"2026-04-01",persona:"demo",nota:""},
     {id:"g3",titulo:"Nafta",monto:40000,moneda:"ARS",categoria:"Transporte",fecha:"2026-04-08",persona:"demo",nota:""},
     {id:"g4",titulo:"Netflix",monto:8000,moneda:"ARS",categoria:"Gasto Extra",fecha:"2026-04-03",persona:"demo",nota:""},
-    {id:"g5",titulo:"Café diario",monto:15000,moneda:"ARS",categoria:"Gasto Hormiga",fecha:"2026-04-12",persona:"demo",nota:""},
+    {id:"g5",titulo:"Cafe diario",monto:15000,moneda:"ARS",categoria:"Gasto Hormiga",fecha:"2026-04-12",persona:"demo",nota:""},
   ],
   ahorros: [
     {id:"a1",titulo:"Ahorro mensual",monto:80000,moneda:"ARS",categoria:"Ahorro general",fecha:"2026-04-01",persona:"demo",nota:""},
@@ -72,7 +79,7 @@ const DEMO_DATA = {
     {id:"p2",titulo:"Notebook nueva",meta:500000,acumulado:150000,moneda:"ARS",tipo:"Individual",fecha:"2026-08-01",nota:""},
   ],
   inversiones: [
-    {id:"inv1",titulo:"Plazo fijo Abril",monto:200000,moneda:"ARS",tipo:"Plazo fijo",fecha:"2026-04-01",proyectado:215000,persona:"demo",nota:"30 días"},
+    {id:"inv1",titulo:"Plazo fijo Abril",monto:200000,moneda:"ARS",tipo:"Plazo fijo",fecha:"2026-04-01",proyectado:215000,persona:"demo",nota:"30 dias"},
   ],
 };
 
@@ -191,7 +198,7 @@ function SwipeRow({record,type,onEdit,onDelete,color}){
           </div>
           <span style={{fontWeight:600,color:color||D.accent,marginLeft:12,whiteSpace:"nowrap",fontSize:15}}>{fmt(record.monto||record.acumulado,record.moneda)}</span>
         </div>
-        {offset===0&&<p style={{fontSize:10,color:D.border,margin:"3px 0 0",textAlign:"right"}}>← deslizá</p>}
+        {offset===0&&<p style={{fontSize:10,color:D.border,margin:"3px 0 0",textAlign:"right"}}>deslizá para editar</p>}
       </div>
     </div>
   );
@@ -206,7 +213,7 @@ function EditModal({record,type,onSave,onClose,catGasto,catIngreso}){
       <div onClick={e=>e.stopPropagation()} style={{background:D.surface,borderRadius:"20px 20px 0 0",padding:"20px 16px 36px",width:"100%",border:`1px solid ${D.border}`,maxHeight:"90vh",overflowY:"auto"}} className="slide-in">
         <div style={{width:40,height:4,background:D.border,borderRadius:4,margin:"0 auto 16px"}}/>
         <p style={{fontWeight:700,fontSize:16,marginBottom:16}}>Editar registro</p>
-        {[{id:"titulo",label:"Descripción",type:"text"},{id:"monto",label:"Monto",type:"number"},{id:"moneda",label:"Moneda",options:MONEDAS},{id:"categoria",label:"Categoría",options:catMap[type]||[]},{id:"persona",label:"¿Quién?",type:"text"},{id:"fecha",label:"Fecha",type:"date"},{id:"nota",label:"Nota",type:"text"}].map(f=>(
+        {[{id:"titulo",label:"Descripción",type:"text"},{id:"monto",label:"Monto",type:"number"},{id:"moneda",label:"Moneda",options:MONEDAS},{id:"categoria",label:"Categoría",options:catMap[type]||[]},{id:"persona",label:"Quién",type:"text"},{id:"fecha",label:"Fecha",type:"date"},{id:"nota",label:"Nota",type:"text"}].map(f=>(
           <div key={f.id} style={{marginBottom:10}}>
             <label style={{display:"block",fontSize:11,color:D.textMuted,marginBottom:4,fontWeight:500,textTransform:"uppercase",letterSpacing:.3}}>{f.label}</label>
             {f.options?(<select value={d[f.id]||""} onChange={e=>upd(f.id,e.target.value)}>{f.options.map(o=><option key={o}>{o}</option>)}</select>):(<input type={f.type||"text"} value={d[f.id]||""} onChange={e=>upd(f.id,e.target.value)}/>)}
@@ -214,7 +221,7 @@ function EditModal({record,type,onSave,onClose,catGasto,catIngreso}){
         ))}
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:8}}>
           <button onClick={onClose} style={{padding:"13px",borderRadius:12,border:`1px solid ${D.border}`,background:D.surface2,color:D.textMuted,fontSize:14,fontWeight:500}}>Cancelar</button>
-          <button onClick={()=>onSave(d)} style={{padding:"13px",borderRadius:12,border:"none",background:D.accent,color:"#fff",fontSize:14,fontWeight:600}}>Guardar ↗</button>
+          <button onClick={()=>onSave(d)} style={{padding:"13px",borderRadius:12,border:"none",background:D.accent,color:"#fff",fontSize:14,fontWeight:600}}>Guardar</button>
         </div>
       </div>
     </div>
@@ -225,8 +232,8 @@ function ConfirmModal({onConfirm,onCancel}){
   return(
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.8)",zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem"}} onClick={onCancel}>
       <div onClick={e=>e.stopPropagation()} style={{background:D.surface,borderRadius:16,padding:"24px",width:"100%",maxWidth:320,border:`1px solid ${D.border}`}} className="slide-in">
-        <p style={{fontSize:16,fontWeight:600,marginBottom:8}}>¿Eliminar registro?</p>
-        <p style={{fontSize:13,color:D.textMuted,marginBottom:20}}>Esta acción no se puede deshacer.</p>
+        <p style={{fontSize:16,fontWeight:600,marginBottom:8}}>Eliminar registro?</p>
+        <p style={{fontSize:13,color:D.textMuted,marginBottom:20}}>Esta accion no se puede deshacer.</p>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
           <button onClick={onCancel} style={{padding:"12px",borderRadius:10,border:`1px solid ${D.border}`,background:D.surface2,color:D.textMuted,fontSize:14,fontWeight:500}}>Cancelar</button>
           <button onClick={onConfirm} style={{padding:"12px",borderRadius:10,border:"none",background:D.red,color:"#fff",fontSize:14,fontWeight:600}}>Eliminar</button>
@@ -264,20 +271,20 @@ function QuickAdd({onSave,onClose,userName,catGasto,catIngreso}){
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.7)",zIndex:150,display:"flex",alignItems:"flex-end"}} onClick={onClose}>
       <div onClick={e=>e.stopPropagation()} style={{background:D.surface,borderRadius:"20px 20px 0 0",padding:"20px 16px 36px",width:"100%",border:`1px solid ${D.border}`}} className="slide-in">
         <div style={{width:40,height:4,background:D.border,borderRadius:4,margin:"0 auto 16px"}}/>
-        <p style={{fontWeight:600,fontSize:16,marginBottom:14}}>Carga rápida</p>
+        <p style={{fontWeight:600,fontSize:16,marginBottom:14}}>Carga rapida</p>
         <div style={{display:"flex",gap:6,marginBottom:14}}>
-          {["gastos","ingresos","ahorros"].map(t=>(<button key={t} onClick={()=>setType(t)} style={{flex:1,padding:"8px",borderRadius:10,border:`1px solid ${type===t?D.accent:D.border}`,background:type===t?D.accent+"22":D.surface2,color:type===t?D.accent:D.textMuted,fontSize:12,fontWeight:500}}>{t==="gastos"?"↓ Gasto":t==="ingresos"?"↑ Ingreso":"♦ Ahorro"}</button>))}
+          {["gastos","ingresos","ahorros"].map(t=>(<button key={t} onClick={()=>setType(t)} style={{flex:1,padding:"8px",borderRadius:10,border:`1px solid ${type===t?D.accent:D.border}`,background:type===t?D.accent+"22":D.surface2,color:type===t?D.accent:D.textMuted,fontSize:12,fontWeight:500}}>{t==="gastos"?"Gasto":t==="ingresos"?"Ingreso":"Ahorro"}</button>))}
         </div>
-        <input placeholder="Descripción" value={d.titulo||""} onChange={e=>upd("titulo",e.target.value)} style={{marginBottom:10}}/>
+        <input placeholder="Descripcion" value={d.titulo||""} onChange={e=>upd("titulo",e.target.value)} style={{marginBottom:10}}/>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}>
           <input type="number" placeholder="Monto" value={d.monto||""} onChange={e=>upd("monto",e.target.value)}/>
           <select value={d.moneda} onChange={e=>upd("moneda",e.target.value)}>{MONEDAS.map(m=><option key={m}>{m}</option>)}</select>
         </div>
         <select value={d.categoria||""} onChange={e=>upd("categoria",e.target.value)} style={{marginBottom:14}}>
-          <option value="">Categoría...</option>
+          <option value="">Categoria...</option>
           {(cats[type]||[]).map(c=><option key={c}>{c}</option>)}
         </select>
-        <button onClick={()=>{onSave(type,d);onClose();}} style={{width:"100%",padding:"14px",borderRadius:12,border:"none",background:D.accent,color:"#fff",fontSize:15,fontWeight:600}}>Guardar ↗</button>
+        <button onClick={()=>{onSave(type,d);onClose();}} style={{width:"100%",padding:"14px",borderRadius:12,border:"none",background:D.accent,color:"#fff",fontSize:15,fontWeight:600}}>Guardar</button>
       </div>
     </div>
   );
@@ -309,9 +316,9 @@ function ProyectosCarrusel({proyectos}){
       </div>
       {proyectos.length>1&&(
         <div style={{display:"flex",justifyContent:"space-between",marginTop:10}}>
-          <button onClick={()=>setIdx(i=>Math.max(0,i-1))} disabled={idx===0} style={{background:"none",border:`1px solid ${D.border}`,borderRadius:8,padding:"4px 12px",color:idx===0?D.border:D.textMuted,fontSize:13}}>← Ant</button>
+          <button onClick={()=>setIdx(i=>Math.max(0,i-1))} disabled={idx===0} style={{background:"none",border:`1px solid ${D.border}`,borderRadius:8,padding:"4px 12px",color:idx===0?D.border:D.textMuted,fontSize:13}}>Ant</button>
           <span style={{fontSize:11,color:D.textMuted,alignSelf:"center"}}>{idx+1} / {proyectos.length}</span>
-          <button onClick={()=>setIdx(i=>Math.min(proyectos.length-1,i+1))} disabled={idx===proyectos.length-1} style={{background:"none",border:`1px solid ${D.border}`,borderRadius:8,padding:"4px 12px",color:idx===proyectos.length-1?D.border:D.textMuted,fontSize:13}}>Sig →</button>
+          <button onClick={()=>setIdx(i=>Math.min(proyectos.length-1,i+1))} disabled={idx===proyectos.length-1} style={{background:"none",border:`1px solid ${D.border}`,borderRadius:8,padding:"4px 12px",color:idx===proyectos.length-1?D.border:D.textMuted,fontSize:13}}>Sig</button>
         </div>
       )}
     </div>
@@ -350,15 +357,15 @@ function Presupuesto({chartLoaded,token,catGasto}){
   return(
     <div style={{padding:"0 0 2rem"}}>
       <div style={{background:D.surface,borderRadius:16,padding:"16px",marginBottom:14,border:`1px solid ${D.border}`}}>
-        <label style={{display:"block",fontSize:11,color:D.textMuted,marginBottom:4,fontWeight:500,textTransform:"uppercase",letterSpacing:.3}}>Ingreso del período</label>
+        <label style={{display:"block",fontSize:11,color:D.textMuted,marginBottom:4,fontWeight:500,textTransform:"uppercase",letterSpacing:.3}}>Ingreso del periodo</label>
         <input type="number" placeholder="Ej: 500000" value={ingreso} onChange={e=>setIngreso(e.target.value)}/>
       </div>
       <div style={{background:D.surface,borderRadius:16,padding:"16px",marginBottom:14,border:`1px solid ${D.border}`}}>
-        <p style={{fontWeight:600,fontSize:14,marginBottom:12}}>Agregar ítem</p>
-        <select value={newItem.cat} onChange={e=>setNewItem(p=>({...p,cat:e.target.value}))} style={{marginBottom:10}}><option value="">Categoría...</option>{catGasto.map(c=><option key={c}>{c}</option>)}</select>
-        <input placeholder="Descripción (opcional)" value={newItem.desc} onChange={e=>setNewItem(p=>({...p,desc:e.target.value}))} style={{marginBottom:10}}/>
+        <p style={{fontWeight:600,fontSize:14,marginBottom:12}}>Agregar item</p>
+        <select value={newItem.cat} onChange={e=>setNewItem(p=>({...p,cat:e.target.value}))} style={{marginBottom:10}}><option value="">Categoria...</option>{catGasto.map(c=><option key={c}>{c}</option>)}</select>
+        <input placeholder="Descripcion (opcional)" value={newItem.desc} onChange={e=>setNewItem(p=>({...p,desc:e.target.value}))} style={{marginBottom:10}}/>
         <input type="number" placeholder="Monto" value={newItem.monto} onChange={e=>setNewItem(p=>({...p,monto:e.target.value}))} style={{marginBottom:10}}/>
-        <button onClick={()=>{if(!newItem.monto||!newItem.cat) return;setItems(p=>[...p,{...newItem,id:Date.now()}]);setNewItem({cat:"",desc:"",monto:""}); }} style={{width:"100%",padding:"12px",borderRadius:12,border:"none",background:D.accent,color:"#fff",fontSize:14,fontWeight:600}}>+ Agregar</button>
+        <button onClick={()=>{if(!newItem.monto||!newItem.cat) return;setItems(p=>[...p,{...newItem,id:Date.now()}]);setNewItem({cat:"",desc:"",monto:""});}} style={{width:"100%",padding:"12px",borderRadius:12,border:"none",background:D.accent,color:"#fff",fontSize:14,fontWeight:600}}>+ Agregar</button>
       </div>
       {items.length>0&&<>
         <div style={{background:D.surface,borderRadius:16,padding:"16px",marginBottom:14,border:`1px solid ${D.border}`}}>
@@ -366,10 +373,10 @@ function Presupuesto({chartLoaded,token,catGasto}){
             <div key={it.id} style={{borderBottom:`1px solid ${D.border}33`,paddingBottom:8,marginBottom:8}}>
               {editIdx===idx?(
                 <div>
-                  <select value={it.cat} onChange={e=>setItems(p=>p.map((x,i)=>i===idx?{...x,cat:e.target.value}:x))} style={{marginBottom:6}}><option value="">Categoría...</option>{catGasto.map(c=><option key={c}>{c}</option>)}</select>
-                  <input placeholder="Descripción" value={it.desc} onChange={e=>setItems(p=>p.map((x,i)=>i===idx?{...x,desc:e.target.value}:x))} style={{marginBottom:6}}/>
+                  <select value={it.cat} onChange={e=>setItems(p=>p.map((x,i)=>i===idx?{...x,cat:e.target.value}:x))} style={{marginBottom:6}}><option value="">Categoria...</option>{catGasto.map(c=><option key={c}>{c}</option>)}</select>
+                  <input placeholder="Descripcion" value={it.desc} onChange={e=>setItems(p=>p.map((x,i)=>i===idx?{...x,desc:e.target.value}:x))} style={{marginBottom:6}}/>
                   <input type="number" value={it.monto} onChange={e=>setItems(p=>p.map((x,i)=>i===idx?{...x,monto:e.target.value}:x))} style={{marginBottom:6}}/>
-                  <button onClick={()=>setEditIdx(null)} style={{width:"100%",padding:"8px",borderRadius:8,border:"none",background:D.green,color:"#fff",fontSize:13,fontWeight:600}}>✓ Listo</button>
+                  <button onClick={()=>setEditIdx(null)} style={{width:"100%",padding:"8px",borderRadius:8,border:"none",background:D.green,color:"#fff",fontSize:13,fontWeight:600}}>Listo</button>
                 </div>
               ):(
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
@@ -377,7 +384,7 @@ function Presupuesto({chartLoaded,token,catGasto}){
                   <div style={{display:"flex",alignItems:"center",gap:6}}>
                     <span style={{fontWeight:600,color:D.red}}>{fmtARS(+it.monto)}</span>
                     <button onClick={()=>setEditIdx(idx)} style={{background:D.accent+"22",border:"none",borderRadius:6,padding:"4px 8px",color:D.accent,fontSize:12}}>✏️</button>
-                    <button onClick={()=>setItems(p=>p.filter((_,i)=>i!==idx))} style={{background:D.red+"22",border:"none",borderRadius:6,padding:"4px 8px",color:D.red,fontSize:12}}>✕</button>
+                    <button onClick={()=>setItems(p=>p.filter((_,i)=>i!==idx))} style={{background:D.red+"22",border:"none",borderRadius:6,padding:"4px 8px",color:D.red,fontSize:12}}>x</button>
                   </div>
                 </div>
               )}
@@ -403,25 +410,21 @@ function Presupuesto({chartLoaded,token,catGasto}){
           </div>
         )}
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-          <button onClick={guardar} style={{padding:"12px",borderRadius:12,border:"none",background:saved?D.green:D.accent,color:"#fff",fontSize:14,fontWeight:600,transition:"background .3s"}}>{saved?"✓ Guardado":"💾 Guardar"}</button>
-          <button onClick={()=>{setItems([]);setIngreso("");}} style={{padding:"12px",borderRadius:12,border:`1px solid ${D.border}`,background:D.surface2,color:D.textMuted,fontSize:14,fontWeight:500}}>🗑️ Limpiar</button>
+          <button onClick={guardar} style={{padding:"12px",borderRadius:12,border:"none",background:saved?D.green:D.accent,color:"#fff",fontSize:14,fontWeight:600,transition:"background .3s"}}>{saved?"Guardado":"Guardar"}</button>
+          <button onClick={()=>{setItems([]);setIngreso("");}} style={{padding:"12px",borderRadius:12,border:`1px solid ${D.border}`,background:D.surface2,color:D.textMuted,fontSize:14,fontWeight:500}}>Limpiar</button>
         </div>
       </>}
     </div>
   );
 }
 
-// ── LOGIN ─────────────────────────────────────────────────────────────────────
 function FraseCarrusel(){
   const [idx,setIdx]=useState(0);
   const [visible,setVisible]=useState(true);
   useEffect(()=>{
     const interval=setInterval(()=>{
       setVisible(false);
-      setTimeout(()=>{
-        setIdx(i=>(i+1)%FRASES.length);
-        setVisible(true);
-      },600);
+      setTimeout(()=>{setIdx(i=>(i+1)%FRASES.length);setVisible(true);},600);
     },3500);
     return()=>clearInterval(interval);
   },[]);
@@ -432,21 +435,6 @@ function FraseCarrusel(){
   );
 }
 
-const FRASES = ["Controlar tu dinero es controlar tu futuro.","El presupuesto es la brujula de tus finanzas.","Pequenos ahorros, grandes resultados.","Tu futuro financiero empieza hoy."];
-
-function FraseCarrusel(){
-  const [idx,setIdx]=useState(0);
-  const [visible,setVisible]=useState(true);
-  useEffect(()=>{
-    const interval=setInterval(()=>{
-      setVisible(false);
-      setTimeout(()=>{ setIdx(i=>(i+1)%FRASES.length); setVisible(true); },600);
-    },3500);
-    return()=>clearInterval(interval);
-  },[]);
-  return(<p style={{color:"#7878a0",fontSize:13,fontStyle:"italic",marginTop:8,minHeight:20,transition:"opacity .6s ease",opacity:visible?1:0,textAlign:"center"}}>"{FRASES[idx]}"</p>);
-}
-function FraseCarrusel(){var f=["Controlar tu dinero es controlar tu futuro.","El presupuesto es la brujula de tus finanzas.","Pequenos ahorros, grandes resultados.","Tu futuro financiero empieza hoy."];var r=React.useState(0);var idx=r[0];var setIdx=r[1];var v=React.useState(true);var vis=v[0];var setVis=v[1];React.useEffect(function(){var t=setInterval(function(){setVis(false);setTimeout(function(){setIdx(function(i){return(i+1)%f.length;});setVis(true);},600);},3500);return function(){clearInterval(t);};},[]); return React.createElement("p",{style:{color:"#7878a0",fontSize:13,fontStyle:"italic",marginTop:8,minHeight:20,transition:"opacity .6s ease",opacity:vis?1:0,textAlign:"center"}},'"'+f[idx]+'"');}
 function LoginScreen({onLogin}){
   const [username,setUsername]=useState("");
   const [password,setPassword]=useState("");
@@ -454,7 +442,7 @@ function LoginScreen({onLogin}){
   const [error,setError]=useState("");
   const [showPass,setShowPass]=useState(false);
   const doLogin=async()=>{
-    if(!username||!password){setError("Completá todos los campos");return;}
+    if(!username||!password){setError("Completa todos los campos");return;}
     setLoading(true);setError("");
     const r=await apiAuth({action:"login",username,password});
     if(r.error){setError(r.error);setLoading(false);return;}
@@ -466,27 +454,24 @@ function LoginScreen({onLogin}){
       <div style={{textAlign:"center",marginBottom:"2rem"}}>
         <p style={{fontSize:36,marginBottom:8}}>💸</p>
         <h2 style={{fontSize:22,fontWeight:700,marginBottom:6}}>FinanzasApp</h2>
-        <p style={{color:D.textMuted,fontSize:14,marginBottom:4}}>Demo — probá todas las funciones</p>
-<FraseCarrusel/>
-        <div style={{background:D.surface,borderRadius:10,padding:"10px 16px",border:`1px solid ${D.border}`,display:"inline-block",marginTop:8}}>
-        </div>
+        <p style={{color:D.textMuted,fontSize:14}}>Demo — proba todas las funciones</p>
+        <FraseCarrusel/>
       </div>
       <div style={{background:D.surface,borderRadius:16,padding:"20px",border:`1px solid ${D.border}`}}>
         <label style={{display:"block",fontSize:11,color:D.textMuted,marginBottom:4,fontWeight:500,textTransform:"uppercase",letterSpacing:.3}}>Usuario</label>
-        <input style={{marginBottom:12}} value={username} onChange={e=>setUsername(e.target.value)}/>
-        <label style={{display:"block",fontSize:11,color:D.textMuted,marginBottom:4,fontWeight:500,textTransform:"uppercase",letterSpacing:.3}}>Contraseña</label>
+        <input style={{marginBottom:12}} placeholder="Usuario" value={username} onChange={e=>setUsername(e.target.value)}/>
+        <label style={{display:"block",fontSize:11,color:D.textMuted,marginBottom:4,fontWeight:500,textTransform:"uppercase",letterSpacing:.3}}>Contrasena</label>
         <div style={{position:"relative",marginBottom:14}}>
-          <input type={showPass?"text":"password"} placeholder="Contraseña" value={password} onChange={e=>setPassword(e.target.value)} style={{paddingRight:44}}/>
+          <input type={showPass?"text":"password"} placeholder="Contrasena" value={password} onChange={e=>setPassword(e.target.value)} style={{paddingRight:44}}/>
           <button onClick={()=>setShowPass(p=>!p)} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:D.textMuted,fontSize:18,padding:0}}>{showPass?"🙈":"👁️"}</button>
         </div>
         {error&&<p style={{fontSize:12,color:D.red,marginBottom:10,fontWeight:500}}>{error}</p>}
-        <button onClick={doLogin} disabled={loading} style={{width:"100%",padding:"14px",borderRadius:12,border:"none",background:D.accent,color:"#fff",fontSize:15,fontWeight:600}}>{loading?"Verificando...":"Entrar a la demo ↗"}</button>
+        <button onClick={doLogin} disabled={loading} style={{width:"100%",padding:"14px",borderRadius:12,border:"none",background:D.accent,color:"#fff",fontSize:15,fontWeight:600}}>{loading?"Verificando...":"Iniciar sesion"}</button>
       </div>
     </div>
   );
 }
 
-// ── MAIN APP ──────────────────────────────────────────────────────────────────
 export default function App(){
   const [authState,setAuthState]=useState("loading");
   const [token,setToken]=useState("");
@@ -508,7 +493,6 @@ export default function App(){
   const [catGasto,setCatGasto]=useState(DEFAULT_CAT_GASTO);
   const [catIngreso,setCatIngreso]=useState(DEFAULT_CAT_INGRESO);
   const [editingCat,setEditingCat]=useState(null);
-  const [newCat,setNewCat]=useState("");
 
   useEffect(()=>{const h=()=>setDesktop(isDesktop());window.addEventListener("resize",h);return()=>window.removeEventListener("resize",h);},[]);
 
@@ -541,26 +525,15 @@ export default function App(){
     setLoading(false);
   };
 
-  const cargarEjemplos=async()=>{
-    setLoading(true);
-    for(const type of Object.keys(DEMO_DATA)){
-      for(const record of DEMO_DATA[type]){
-        await apiData({action:"add",type,record},token);
-      }
-    }
-    showMsg("✓ Datos de ejemplo cargados");
-    loadAll();setLoading(false);
-  };
-
   const saveCategorias=async(gasto,ingreso)=>{
     await apiData({action:"saveCategorias",record:{gasto,ingreso}},token);
-    showMsg("✓ Categorías guardadas");
+    showMsg("Categorias guardadas");
   };
 
   const addRecord=async(type,data)=>{
     setLoading(true);
     const r=await apiData({action:"add",type,record:{...data,monto:+data.monto||0}},token);
-    if(r.success){showMsg("✓ Guardado");loadAll();}else showMsg("Error al guardar","error");
+    if(r.success){showMsg("Guardado");loadAll();}else showMsg("Error al guardar","error");
     setLoading(false);
   };
 
@@ -568,23 +541,34 @@ export default function App(){
     if(!editRecord||!editType) return;
     setLoading(true);
     await apiData({action:"update",type:editType,id:editRecord.id,record:{...data,monto:+data.monto||0}},token);
-    showMsg("✓ Actualizado");setEditRecord(null);setEditType(null);loadAll();setLoading(false);
+    showMsg("Actualizado");setEditRecord(null);setEditType(null);loadAll();setLoading(false);
   };
 
   const confirmDelete=async()=>{
     if(!deleteInfo) return;
     setLoading(true);
     await apiData({action:"delete",type:deleteInfo.type,id:deleteInfo.id},token);
-    showMsg("✓ Eliminado");setDeleteInfo(null);loadAll();setLoading(false);
+    showMsg("Eliminado");setDeleteInfo(null);loadAll();setLoading(false);
   };
 
   const handleEdit=(record,type)=>{setEditRecord(record);setEditType(type);};
   const handleDelete=(id,type)=>setDeleteInfo({id,type});
 
+  const cargarEjemplos=async()=>{
+    setLoading(true);
+    for(const type of Object.keys(DEMO_DATA)){
+      for(const record of DEMO_DATA[type]){
+        await apiData({action:"add",type,record},token);
+      }
+    }
+    showMsg("Datos de ejemplo cargados");
+    loadAll();setLoading(false);
+  };
+
   const resetDemo=async()=>{
     setLoading(true);
     await apiData({action:"reset"},token);
-    showMsg("Demo reseteada ✓");
+    showMsg("Demo reseteada");
     loadAll();setLoading(false);
   };
 
@@ -603,10 +587,8 @@ export default function App(){
   const totalA=fl.ahorros.reduce((s,r)=>s+r.monto,0);
   const balance=totalI-totalG-totalA;
 
-  const catColors={};
-  catGasto.forEach((c,i)=>catColors[c]=COLORS[i%COLORS.length]);
-  const catColorsI={};
-  catIngreso.forEach((c,i)=>catColorsI[c]=COLORS[i%COLORS.length]);
+  const catColors={};catGasto.forEach((c,i)=>catColors[c]=COLORS[i%COLORS.length]);
+  const catColorsI={};catIngreso.forEach((c,i)=>catColorsI[c]=COLORS[i%COLORS.length]);
 
   const gastosPorCat=catGasto.map(c=>({label:c,value:fl.gastos.filter(r=>r.categoria===c).reduce((s,r)=>s+r.monto,0),color:catColors[c]})).filter(x=>x.value>0).sort((a,b)=>b.value-a.value);
   const ingresosPorCat=catIngreso.map(c=>({label:c,value:fl.ingresos.filter(r=>r.categoria===c).reduce((s,r)=>s+r.monto,0),color:catColorsI[c]})).filter(x=>x.value>0);
@@ -627,7 +609,7 @@ export default function App(){
             {f.options?(<select value={d[f.id]||""} onChange={e=>upd(f.id,e.target.value)}><option value="">Elegir...</option>{f.options.map(o=><option key={o}>{o}</option>)}</select>):(<input type={f.type||"text"} value={d[f.id]||""} onChange={e=>upd(f.id,e.target.value)} placeholder={f.placeholder||""}/>)}
           </div>
         ))}
-        <button onClick={()=>addRecord(type,d)} disabled={loading} style={{width:"100%",padding:"13px",borderRadius:12,border:"none",background:loading?D.surface2:D.accent,color:loading?D.textMuted:"#fff",fontSize:15,fontWeight:600,marginTop:4}}>{loading?"Guardando...":"Guardar ↗"}</button>
+        <button onClick={()=>addRecord(type,d)} disabled={loading} style={{width:"100%",padding:"13px",borderRadius:12,border:"none",background:loading?D.surface2:D.accent,color:loading?D.textMuted:"#fff",fontSize:15,fontWeight:600,marginTop:4}}>{loading?"Guardando...":"Guardar"}</button>
       </div>
     );
   }
@@ -654,7 +636,7 @@ export default function App(){
     const [localNew,setLocalNew]=useState("");
     return(
       <div style={{marginBottom:16}}>
-        <p style={{fontSize:13,fontWeight:600,marginBottom:10,color:D.text}}>Categorías de {tipo}</p>
+        <p style={{fontSize:13,fontWeight:600,marginBottom:10,color:D.text}}>Categorias de {tipo}</p>
         {cats.map((c,i)=>(
           <div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
             <span style={{width:8,height:8,borderRadius:2,background:COLORS[i%COLORS.length],flexShrink:0,display:"inline-block"}}/>
@@ -664,17 +646,11 @@ export default function App(){
               <span style={{flex:1,fontSize:13,color:D.text}}>{c}</span>
             )}
             <button onClick={()=>setEditingCat(`${tipo}-${i}`)} style={{background:D.accent+"22",border:"none",borderRadius:6,padding:"4px 8px",color:D.accent,fontSize:12}}>✏️</button>
-            <button onClick={()=>{const n=cats.filter((_,j)=>j!==i);setCats(n);saveCategorias(tipo==="gastos"?n:catGasto,tipo==="ingresos"?n:catIngreso);}} style={{background:D.red+"22",border:"none",borderRadius:6,padding:"4px 8px",color:D.red,fontSize:12}}>✕</button>
+            <button onClick={()=>{const n=cats.filter((_,j)=>j!==i);setCats(n);saveCategorias(tipo==="gastos"?n:catGasto,tipo==="ingresos"?n:catIngreso);}} style={{background:D.red+"22",border:"none",borderRadius:6,padding:"4px 8px",color:D.red,fontSize:12}}>x</button>
           </div>
         ))}
         <div style={{display:"flex",gap:8,marginTop:8}}>
-          <input
-            placeholder="Nueva categoría..."
-            value={localNew}
-            onChange={e=>setLocalNew(e.target.value)}
-            onKeyDown={e=>{if(e.key==="Enter"&&localNew.trim()){const n=[...cats,localNew.trim()];setCats(n);saveCategorias(tipo==="gastos"?n:catGasto,tipo==="ingresos"?n:catIngreso);setLocalNew("");}}}
-            style={{flex:1,padding:"8px 12px",fontSize:13}}
-          />
+          <input placeholder="Nueva categoria..." value={localNew} onChange={e=>setLocalNew(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&localNew.trim()){const n=[...cats,localNew.trim()];setCats(n);saveCategorias(tipo==="gastos"?n:catGasto,tipo==="ingresos"?n:catIngreso);setLocalNew("");}}} style={{flex:1,padding:"8px 12px",fontSize:13}}/>
           <button onClick={()=>{if(!localNew.trim()) return;const n=[...cats,localNew.trim()];setCats(n);saveCategorias(tipo==="gastos"?n:catGasto,tipo==="ingresos"?n:catIngreso);setLocalNew("");}} style={{padding:"8px 14px",borderRadius:10,border:"none",background:D.accent,color:"#fff",fontSize:13,fontWeight:600}}>+ Agregar</button>
         </div>
       </div>
@@ -696,11 +672,11 @@ export default function App(){
         <div style={{width:220,flexShrink:0,background:D.surface,borderRight:`1px solid ${D.border}`,display:"flex",flexDirection:"column",position:"fixed",top:0,left:0,bottom:0,zIndex:60,padding:"20px 12px"}}>
           <div style={{marginBottom:24,padding:"0 4px"}}>
             <p style={{fontSize:18,fontWeight:700,margin:0}}>💸 Finanzas</p>
-            <p style={{fontSize:11,color:D.accent,margin:"2px 0 0",fontWeight:500}}>✨ Demo</p>
+            <p style={{fontSize:11,color:D.accent,margin:"2px 0 0",fontWeight:500}}>Demo</p>
           </div>
           <div style={{flex:1,display:"flex",flexDirection:"column",gap:2}}>{TABS.map(t=>navItem(t))}</div>
-          <button onClick={()=>loadAll()} style={{width:"100%",padding:"10px",borderRadius:10,border:`1px solid ${D.border}`,background:D.surface2,color:D.textMuted,fontSize:13,marginBottom:8}} disabled={loading}>{loading?"⟳":"↻ Sincronizar"}</button>
-          <button onClick={()=>{localStorage.removeItem("nf_jwt");localStorage.removeItem("nf_user");setAuthState("login");}} style={{width:"100%",padding:"10px",borderRadius:10,border:`1px solid ${D.red}44`,background:D.red+"11",color:D.red,fontSize:13}}>Cerrar sesión</button>
+          <button onClick={()=>loadAll()} style={{width:"100%",padding:"10px",borderRadius:10,border:`1px solid ${D.border}`,background:D.surface2,color:D.textMuted,fontSize:13,marginBottom:8}} disabled={loading}>{loading?"...":"Sincronizar"}</button>
+          <button onClick={()=>{localStorage.removeItem("nf_jwt");localStorage.removeItem("nf_user");setAuthState("login");}} style={{width:"100%",padding:"10px",borderRadius:10,border:`1px solid ${D.red}44`,background:D.red+"11",color:D.red,fontSize:13}}>Cerrar sesion</button>
         </div>
       )}
 
@@ -710,10 +686,10 @@ export default function App(){
           <div style={{position:"relative",width:260,background:D.surface,borderRight:`1px solid ${D.border}`,display:"flex",flexDirection:"column",padding:"20px 12px",zIndex:201}} className="slide-in">
             <div style={{marginBottom:24,padding:"0 4px"}}>
               <p style={{fontSize:18,fontWeight:700,margin:0}}>💸 Finanzas</p>
-              <p style={{fontSize:11,color:D.accent,margin:"2px 0 0",fontWeight:500}}>✨ Demo</p>
+              <p style={{fontSize:11,color:D.accent,margin:"2px 0 0",fontWeight:500}}>Demo</p>
             </div>
             <div style={{flex:1,display:"flex",flexDirection:"column",gap:2}}>{TABS.map(t=>navItem(t))}</div>
-            <button onClick={()=>{localStorage.removeItem("nf_jwt");localStorage.removeItem("nf_user");setAuthState("login");}} style={{width:"100%",padding:"10px",borderRadius:10,border:`1px solid ${D.red}44`,background:D.red+"11",color:D.red,fontSize:13,marginTop:12}}>Cerrar sesión</button>
+            <button onClick={()=>{localStorage.removeItem("nf_jwt");localStorage.removeItem("nf_user");setAuthState("login");}} style={{width:"100%",padding:"10px",borderRadius:10,border:`1px solid ${D.red}44`,background:D.red+"11",color:D.red,fontSize:13,marginTop:12}}>Cerrar sesion</button>
           </div>
         </div>
       )}
@@ -726,7 +702,7 @@ export default function App(){
           </div>
           <div style={{display:"flex",gap:8,alignItems:"center"}}>
             <button onClick={()=>setShowQuick(true)} style={{background:D.accent,border:"none",borderRadius:20,padding:"6px 14px",color:"#fff",fontSize:13,fontWeight:600}}>+ Agregar</button>
-            {!desktop&&<button onClick={()=>loadAll()} style={{background:D.surface,border:`1px solid ${D.border}`,borderRadius:8,padding:"6px 10px",color:D.textMuted,fontSize:13}} disabled={loading}>{loading?"⟳":"↻"}</button>}
+            {!desktop&&<button onClick={()=>loadAll()} style={{background:D.surface,border:`1px solid ${D.border}`,borderRadius:8,padding:"6px 10px",color:D.textMuted,fontSize:13}} disabled={loading}>{loading?"...":"↻"}</button>}
           </div>
         </div>
 
@@ -742,14 +718,14 @@ export default function App(){
               <StatCard label="Ahorro" value={totalA} color={D.accent} moneda={moneda}/>
               <StatCard label="Balance" value={balance} color={balance>=0?D.green:D.red} moneda={moneda}/>
             </div>
-            {chartLoaded&&gastosPorCat.length>0&&<><p style={{fontSize:12,fontWeight:600,color:D.textMuted,textTransform:"uppercase",letterSpacing:1,margin:"20px 0 10px"}}>Gastos por categoría</p><div style={{background:D.surface,borderRadius:16,padding:"14px",border:`1px solid ${D.border}`}}><PieChart data={gastosPorCat}/></div></>}
+            {chartLoaded&&gastosPorCat.length>0&&<><p style={{fontSize:12,fontWeight:600,color:D.textMuted,textTransform:"uppercase",letterSpacing:1,margin:"20px 0 10px"}}>Gastos por categoria</p><div style={{background:D.surface,borderRadius:16,padding:"14px",border:`1px solid ${D.border}`}}><PieChart data={gastosPorCat}/></div></>}
             <p style={{fontSize:12,fontWeight:600,color:D.textMuted,textTransform:"uppercase",letterSpacing:1,margin:"20px 0 10px"}}>Proyectos activos</p>
             {(records.proyectos||[]).length===0&&<p style={{color:D.textMuted,fontSize:13,textAlign:"center",padding:"1rem"}}>Sin proyectos</p>}
             {(records.proyectos||[]).length>0&&<ProyectosCarrusel proyectos={records.proyectos||[]}/>}
           </>}
 
           {tab==="Ingresos"&&<>
-            <AddForm type="ingresos" fields={[{id:"titulo",label:"Descripción"},{id:"monto",label:"Monto",type:"number"},{id:"moneda",label:"Moneda",options:MONEDAS},{id:"categoria",label:"Categoría"},{id:"persona",label:"¿Quién?"},{id:"fecha",label:"Fecha",type:"date"},{id:"nota",label:"Nota"}]}/>
+            <AddForm type="ingresos" fields={[{id:"titulo",label:"Descripcion"},{id:"monto",label:"Monto",type:"number"},{id:"moneda",label:"Moneda",options:MONEDAS},{id:"categoria",label:"Categoria"},{id:"persona",label:"Quien"},{id:"fecha",label:"Fecha",type:"date"},{id:"nota",label:"Nota"}]}/>
             <PeriodFilter/>
             {chartLoaded&&fl.ingresos.length>0&&<><div style={{background:D.surface,borderRadius:16,padding:"14px",border:`1px solid ${D.border}`,marginBottom:14}}><PieChart data={ingresosPorCat}/></div><div style={{background:D.surface,borderRadius:16,padding:"14px",border:`1px solid ${D.border}`,marginBottom:14}}><LineChart data={monthlyData(records.ingresos||[])} color={D.green} moneda={moneda}/></div></>}
             <p style={{fontSize:12,fontWeight:600,color:D.textMuted,textTransform:"uppercase",letterSpacing:1,margin:"16px 0 8px"}}>Registros</p>
@@ -758,15 +734,15 @@ export default function App(){
           </>}
 
           {tab==="Gastos"&&<>
-            <AddForm type="gastos" fields={[{id:"titulo",label:"Descripción"},{id:"monto",label:"Monto",type:"number"},{id:"moneda",label:"Moneda",options:MONEDAS},{id:"categoria",label:"Categoría"},{id:"persona",label:"¿Quién pagó?"},{id:"fecha",label:"Fecha",type:"date"},{id:"nota",label:"Nota"}]}/>
+            <AddForm type="gastos" fields={[{id:"titulo",label:"Descripcion"},{id:"monto",label:"Monto",type:"number"},{id:"moneda",label:"Moneda",options:MONEDAS},{id:"categoria",label:"Categoria"},{id:"persona",label:"Quien pago"},{id:"fecha",label:"Fecha",type:"date"},{id:"nota",label:"Nota"}]}/>
             <PeriodFilter/>
             {chartLoaded&&fl.gastos.length>0&&<><div style={{background:D.surface,borderRadius:16,padding:"14px",border:`1px solid ${D.border}`,marginBottom:14}}><PieChart data={gastosPorCat}/></div><div style={{background:D.surface,borderRadius:16,padding:"14px",border:`1px solid ${D.border}`,marginBottom:14}}><LineChart data={monthlyData(records.gastos||[])} color={D.red} moneda={moneda}/></div></>}
-            <p style={{fontSize:12,fontWeight:600,color:D.textMuted,textTransform:"uppercase",letterSpacing:1,margin:"16px 0 8px"}}>Por categoría</p>
+            <p style={{fontSize:12,fontWeight:600,color:D.textMuted,textTransform:"uppercase",letterSpacing:1,margin:"16px 0 8px"}}>Por categoria</p>
             {catGasto.map((c,i)=><CatAccordion key={c} title={c} color={COLORS[i%COLORS.length]} items={fl.gastos.filter(r=>r.categoria===c)} type="gastos" onEdit={handleEdit} onDelete={handleDelete}/>)}
           </>}
 
           {tab==="Ahorro"&&<>
-            <AddForm type="ahorros" fields={[{id:"titulo",label:"Descripción"},{id:"monto",label:"Monto",type:"number"},{id:"moneda",label:"Moneda",options:MONEDAS},{id:"categoria",label:"Categoría",options:CAT_AHORRO},{id:"persona",label:"¿Quién?"},{id:"fecha",label:"Fecha",type:"date"},{id:"nota",label:"Nota"}]}/>
+            <AddForm type="ahorros" fields={[{id:"titulo",label:"Descripcion"},{id:"monto",label:"Monto",type:"number"},{id:"moneda",label:"Moneda",options:MONEDAS},{id:"categoria",label:"Categoria",options:CAT_AHORRO},{id:"persona",label:"Quien"},{id:"fecha",label:"Fecha",type:"date"},{id:"nota",label:"Nota"}]}/>
             <PeriodFilter/>
             <div style={{background:D.surface,borderRadius:14,padding:"14px",marginBottom:14,border:`1px solid ${D.border}`,textAlign:"center"}}><p style={{fontSize:11,color:D.textMuted,margin:"0 0 6px",textTransform:"uppercase",letterSpacing:.5}}>Total ahorrado</p><p style={{fontSize:28,fontWeight:700,color:D.accent,margin:0}}>{fmt(totalA,moneda)}</p></div>
             {fl.ahorros.map(r=><SwipeRow key={r.id} record={r} type="ahorros" onEdit={handleEdit} onDelete={handleDelete} color={D.accent}/>)}
@@ -783,17 +759,14 @@ export default function App(){
                     <div><p style={{fontWeight:600,fontSize:15,margin:"0 0 4px"}}>{p.titulo}</p><span style={{fontSize:11,background:D.accent+"22",color:D.accent,padding:"3px 10px",borderRadius:20,fontWeight:500}}>{p.tipo||"Grupal"}</span></div>
                     <span style={{fontWeight:700,fontSize:22,color:pct>=100?D.green:D.accent}}>{pct}%</span>
                   </div>
-                  <div style={{marginBottom:6}}>
-                    <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:D.textMuted,marginBottom:3}}><span>Avance</span><span style={{color:D.accent,fontWeight:600}}>{fmt(p.acumulado,p.moneda)}</span></div>
-                    <div style={{background:D.surface2,borderRadius:8,height:10}}><div style={{width:`${pct}%`,height:"100%",background:`linear-gradient(90deg,${D.accent},${D.purple})`,borderRadius:8}}/></div>
-                  </div>
-                  <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginTop:6}}>
+                  <div style={{background:D.surface2,borderRadius:8,height:10,marginBottom:8}}><div style={{width:`${pct}%`,height:"100%",background:`linear-gradient(90deg,${D.accent},${D.purple})`,borderRadius:8}}/></div>
+                  <div style={{display:"flex",justifyContent:"space-between",fontSize:12}}>
                     <span style={{color:D.textMuted}}>Meta: <span style={{color:D.text,fontWeight:500}}>{fmt(p.meta,p.moneda)}</span></span>
                     <span style={{color:D.textMuted}}>Falta: <span style={{color:D.red,fontWeight:600}}>{fmt(rem,p.moneda)}</span></span>
                   </div>
                   <div style={{display:"flex",gap:8,marginTop:12}}>
-                    <button onClick={()=>handleEdit(p,"proyectos")} style={{flex:1,padding:"9px",borderRadius:10,border:`1px solid ${D.accent}44`,background:D.accent+"11",color:D.accent,fontSize:13,fontWeight:500}}>✏️ Editar</button>
-                    <button onClick={()=>handleDelete(p.id,"proyectos")} style={{flex:1,padding:"9px",borderRadius:10,border:`1px solid ${D.red}44`,background:D.red+"11",color:D.red,fontSize:13,fontWeight:500}}>🗑️ Eliminar</button>
+                    <button onClick={()=>handleEdit(p,"proyectos")} style={{flex:1,padding:"9px",borderRadius:10,border:`1px solid ${D.accent}44`,background:D.accent+"11",color:D.accent,fontSize:13,fontWeight:500}}>Editar</button>
+                    <button onClick={()=>handleDelete(p.id,"proyectos")} style={{flex:1,padding:"9px",borderRadius:10,border:`1px solid ${D.red}44`,background:D.red+"11",color:D.red,fontSize:13,fontWeight:500}}>Eliminar</button>
                   </div>
                 </div>
               );
@@ -801,7 +774,7 @@ export default function App(){
           </>}
 
           {tab==="Inversiones"&&<>
-            <AddForm type="inversiones" fields={[{id:"titulo",label:"Descripción"},{id:"monto",label:"Monto",type:"number"},{id:"moneda",label:"Moneda",options:MONEDAS},{id:"tipo",label:"Tipo",options:CAT_INV},{id:"proyectado",label:"Retorno proyectado",type:"number"},{id:"persona",label:"¿Quién?"},{id:"fecha",label:"Fecha",type:"date"},{id:"nota",label:"Nota"}]}/>
+            <AddForm type="inversiones" fields={[{id:"titulo",label:"Descripcion"},{id:"monto",label:"Monto",type:"number"},{id:"moneda",label:"Moneda",options:MONEDAS},{id:"tipo",label:"Tipo",options:CAT_INV},{id:"proyectado",label:"Retorno proyectado",type:"number"},{id:"persona",label:"Quien"},{id:"fecha",label:"Fecha",type:"date"},{id:"nota",label:"Nota"}]}/>
             <PeriodFilter/>
             {chartLoaded&&invPorTipo.length>0&&<div style={{background:D.surface,borderRadius:16,padding:"14px",border:`1px solid ${D.border}`,marginBottom:14}}><PieChart data={invPorTipo}/></div>}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}}><StatCard label="Invertido" value={fl.inversiones.reduce((s,r)=>s+r.monto,0)} color={D.purple} moneda={moneda}/><StatCard label="Proyectado" value={fl.inversiones.reduce((s,r)=>s+(r.proyectado||0),0)} color={D.green} moneda={moneda}/></div>
@@ -823,7 +796,7 @@ export default function App(){
               <div style={{background:D.surface,borderRadius:16,padding:"14px",border:`1px solid ${D.border}`,marginBottom:14}}>
                 <BarChartDoble ingresos={monthlyData(records.ingresos||[])} gastos={monthlyData(records.gastos||[])} moneda={moneda} presupuesto={records.presupuesto}/>
               </div>
-              <p style={{fontSize:12,fontWeight:600,color:D.textMuted,textTransform:"uppercase",letterSpacing:1,margin:"16px 0 10px"}}>Distribución de gastos</p>
+              <p style={{fontSize:12,fontWeight:600,color:D.textMuted,textTransform:"uppercase",letterSpacing:1,margin:"16px 0 10px"}}>Distribucion de gastos</p>
               <div style={{background:D.surface,borderRadius:16,padding:"14px",border:`1px solid ${D.border}`,marginBottom:14}}>
                 <PieChart data={catGasto.map(c=>({label:c,value:(records.gastos||[]).filter(r=>r.categoria===c&&r.moneda===moneda).reduce((s,r)=>s+r.monto,0),color:catColors[c]})).filter(x=>x.value>0)}/>
               </div>
@@ -832,19 +805,19 @@ export default function App(){
 
           {tab==="Config"&&<>
             <div style={{background:D.surface,borderRadius:16,padding:"16px",marginTop:16,border:`1px solid ${D.border}`,marginBottom:12}}>
-              <p style={{fontWeight:600,marginBottom:12}}>✏️ Editar categorías de gastos</p>
+              <p style={{fontWeight:600,marginBottom:12}}>Editar categorias de gastos</p>
               <CatEditor cats={catGasto} setCats={setCatGasto} tipo="gastos"/>
             </div>
             <div style={{background:D.surface,borderRadius:16,padding:"16px",border:`1px solid ${D.border}`,marginBottom:12}}>
-              <p style={{fontWeight:600,marginBottom:12}}>✏️ Editar categorías de ingresos</p>
+              <p style={{fontWeight:600,marginBottom:12}}>Editar categorias de ingresos</p>
               <CatEditor cats={catIngreso} setCats={setCatIngreso} tipo="ingresos"/>
             </div>
             <div style={{background:D.surface,borderRadius:16,padding:"16px",border:`1px solid ${D.border}`,marginBottom:12}}>
-              <p style={{fontWeight:600,marginBottom:4}}>Sesión</p>
+              <p style={{fontWeight:600,marginBottom:4}}>Sesion</p>
               <p style={{fontSize:13,color:D.textMuted,marginBottom:12}}>Usuario: <span style={{color:D.text,fontWeight:500}}>{userName}</span></p>
-              <button onClick={()=>{localStorage.removeItem("nf_jwt");localStorage.removeItem("nf_user");setAuthState("login");}} style={{width:"100%",padding:"12px",borderRadius:10,border:`1px solid ${D.red}44`,background:D.red+"11",color:D.red,fontSize:14,fontWeight:500,marginBottom:8}}>Cerrar sesión</button>
-              <button onClick={resetDemo} disabled={loading} style={{width:"100%",padding:"12px",borderRadius:10,border:`1px solid ${D.yellow}44`,background:D.yellow+"11",color:D.yellow,fontSize:14,fontWeight:500,marginBottom:8}}>🔄 Resetear demo</button>
-              <button onClick={cargarEjemplos} disabled={loading} style={{width:"100%",padding:"12px",borderRadius:10,border:`1px solid ${D.accent}44`,background:D.accent+"11",color:D.accent,fontSize:14,fontWeight:500}}>📊 Cargar datos de ejemplo</button>
+              <button onClick={()=>{localStorage.removeItem("nf_jwt");localStorage.removeItem("nf_user");setAuthState("login");}} style={{width:"100%",padding:"12px",borderRadius:10,border:`1px solid ${D.red}44`,background:D.red+"11",color:D.red,fontSize:14,fontWeight:500,marginBottom:8}}>Cerrar sesion</button>
+              <button onClick={resetDemo} disabled={loading} style={{width:"100%",padding:"12px",borderRadius:10,border:`1px solid ${D.yellow}44`,background:D.yellow+"11",color:D.yellow,fontSize:14,fontWeight:500,marginBottom:8}}>Resetear demo</button>
+              <button onClick={cargarEjemplos} disabled={loading} style={{width:"100%",padding:"12px",borderRadius:10,border:`1px solid ${D.accent}44`,background:D.accent+"11",color:D.accent,fontSize:14,fontWeight:500}}>Cargar datos de ejemplo</button>
             </div>
           </>}
 
