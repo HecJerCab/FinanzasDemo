@@ -1,12 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 
-const FRASES = [
-  "Controlar tu dinero es controlar tu futuro.",
-  "El presupuesto es la brújula de tus finanzas.",
-  "Pequeños ahorros, grandes resultados.",
-  "Cada peso que registrás es un paso hacia tu meta.",
-  "Tu futuro financiero empieza hoy.",
-];
 const DEFAULT_CAT_INGRESO = ["Sueldo","Premio","Extra","Otro"];
 const CAT_INV = ["Plazo fijo","Acciones","Cripto","FCI","Dólares","Inmueble","Otro"];
 const CAT_AHORRO = ["Ahorro general","Fondo de emergencia","Vacaciones","Tecnología","Otro"];
